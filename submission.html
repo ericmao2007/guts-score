@@ -37,18 +37,20 @@ function submitAnswer() {
 
   fetch("https://script.google.com/macros/s/AKfycbwy_eNr0cqopWP-3ZnC08m3PSGf9J0phf96YiSfddmFlcYnKKSePBTB_gs5YSD7qXPZ/exec", {
     method: "POST",
-    body: JSON.stringify(data),
-    headers: { "Content-Type": "application/json" }
+    // 注意：这里改成 text/plain，就不会触发 preflight 了
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify(data)
   })
   .then(res => res.text())
   .then(txt => {
-    document.getElementById("result").innerText = "提交成功！服务器返回：" + txt;
-    // 提交成功以后把答案清空
+    document.getElementById("result").innerText = "提交成功！";
     document.getElementById("answer").value = "";
   })
   .catch(err => {
     console.error(err);
-    document.getElementById("result").innerText = "提交失败，可能是URL或权限问题（详见控制台）";
+    document.getElementById("result").innerText = "提交失败（请截图发给我）";
   });
 }
 </script>
