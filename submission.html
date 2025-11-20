@@ -22,20 +22,33 @@
 
 <script>
 function submitAnswer() {
-  const data = {
-    team: document.getElementById("team").value,
-    question: document.getElementById("question").value,
-    answer: document.getElementById("answer").value
-  };
+  const team = document.getElementById("team").value.trim();
+  const question = document.getElementById("question").value.trim();
+  const answer = document.getElementById("answer").value.trim();
 
-  fetch("https://script.google.com/a/macros/prismsus.org/s/AKfycbxsraNT30t-FKUrIX8eEQpSiBy20DUOhLE70lDSmYe7wLRSrEHc-dfx73nPAvSlH3le/exec", {
+  if (!team || !question || !answer) {
+    document.getElementById("result").innerText = "请把三个框都填上再点提交";
+    return;
+  }
+
+  document.getElementById("result").innerText = "正在提交中...";
+
+  const data = { team, question, answer };
+
+  fetch("https://script.google.com/macros/s/AKfycbxsraNT30t-FKUrIX8eEQpSiBy20DUOhLE70lDSmYe7wLRSrEHc-dfx73nPAvSlH3le/exec", {
     method: "POST",
     body: JSON.stringify(data),
     headers: { "Content-Type": "application/json" }
   })
   .then(res => res.text())
   .then(txt => {
-    document.getElementById("result").innerText = "Submitted!";
+    document.getElementById("result").innerText = "提交成功！服务器返回：" + txt;
+    // 提交成功以后把答案清空
+    document.getElementById("answer").value = "";
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById("result").innerText = "提交失败，可能是URL或权限问题（详见控制台）";
   });
 }
 </script>
