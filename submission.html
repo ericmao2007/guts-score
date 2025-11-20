@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Guts Answer Submission</title>
+</head>
+<body>
+  <h2>Submit Answers</h2>
+
+  <label>Team Name:</label><br>
+  <input id="team" type="text"><br><br>
+
+  <label>Question Number:</label><br>
+  <input id="question" type="text"><br><br>
+
+  <label>Your Answer:</label><br>
+  <input id="answer" type="text"><br><br>
+
+  <button onclick="submitAnswer()">Submit</button>
+
+  <p id="result"></p>
+
+<script>
+function submitAnswer() {
+  const data = {
+    team: document.getElementById("team").value,
+    question: document.getElementById("question").value,
+    answer: document.getElementById("answer").value
+  };
+
+  fetch("https://script.google.com/a/macros/prismsus.org/s/AKfycbxsraNT30t-FKUrIX8eEQpSiBy20DUOhLE70lDSmYe7wLRSrEHc-dfx73nPAvSlH3le/exec", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" }
+  })
+  .then(res => res.text())
+  .then(txt => {
+    document.getElementById("result").innerText = "Submitted!";
+  });
+}
+</script>
+
+</body>
+</html>
