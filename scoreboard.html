@@ -1,17 +1,204 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Guts Scoreboard</title>
+  <meta charset="UTF-8" />
+  <title>Guts Scoreboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      background: radial-gradient(circle at top, #1d293b, #020617);
+      color: #e5e7eb;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: 800;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+    }
+    .last-update {
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: right;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(15,23,42,0.9);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.45);
+      border: 1px solid rgba(148,163,184,0.4);
+    }
+    thead {
+      background: linear-gradient(135deg,#06b6d4,#3b82f6);
+    }
+    th, td {
+      padding: 10px 12px;
+      font-size: 14px;
+      text-align: left;
+    }
+    th {
+      color: #e5e7eb;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(odd) {
+      background: rgba(15,23,42,0.9);
+    }
+    tbody tr:nth-child(even) {
+      background: rgba(15,23,42,0.75);
+    }
+    tbody tr:first-child td {
+      border-top: none;
+    }
+    tbody tr td {
+      border-top: 1px solid rgba(31,41,55,0.7);
+    }
+    .rank {
+      width: 60px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .team {
+      font-weight: 500;
+    }
+    .score {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      margin-left: 6px;
+      color: #fefce8;
+    }
+    .gold   { background: linear-gradient(135deg,#f59e0b,#facc15); }
+    .silver { background: linear-gradient(135deg,#9ca3af,#e5e7eb); color:#020617; }
+    .bronze { background: linear-gradient(135deg,#b45309,#f97316); }
+    .status {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <div class="title">Guts Live Scoreboard</div>
+        <div class="subtitle">Updated every 5 seconds</div>
+      </div>
+    </div>
+    <div id="lastUpdate" class="last-update">Last update: --</div>
 
-<h2>Guts Scoreboard</h2>
+    <table>
+      <thead>
+        <tr>
+          <th class="rank">Rank</th>
+          <th>Team</th>
+          <th class="score">Score</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="3">Loading...</td></tr>
+      </tbody>
+    </table>
 
-<iframe 
-  src="https://docs.google.com/spreadsheets/d/1CwjFsUYrTIIXev5SvGCDjKOn8eZ5zrY1qyCMQfn8CQo/edit?usp=sharing"
-  width="100%" height="600px">
-</iframe>
+    <div id="status" class="status"></div>
+  </div>
 
+  <script>
+    // 换成你的 Web App URL
+    const BASE_URL = "YOUR_WEB_APP_URL_HERE";
+
+    async function fetchScores() {
+      const statusEl = document.getElementById("status");
+      const tbody = document.getElementById("tbody");
+      const lastUpdate = document.getElementById("lastUpdate");
+
+      try {
+        const url = BASE_URL + "?mode=scoreboard";
+        const res = await fetch(url, { cache: "no-store" });
+        const data = await res.json();  // [{team, score}, ...]
+
+        tbody.innerHTML = "";
+
+        if (!data || data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3">No submissions yet.</td></tr>';
+        } else {
+          data.forEach((row, idx) => {
+            const tr = document.createElement("tr");
+
+            const rankTd = document.createElement("td");
+            rankTd.className = "rank";
+            rankTd.textContent = idx + 1;
+
+            const teamTd = document.createElement("td");
+            teamTd.className = "team";
+            teamTd.textContent = row.team || "(Unnamed)";
+
+            // 给前 3 名加一个小 badge
+            if (idx === 0) {
+              const badge = document.createElement("span");
+              badge.className = "badge gold";
+              badge.textContent = "1st";
+              teamTd.appendChild(badge);
+            } else if (idx === 1) {
+              const badge = document.createElement("span");
+              badge.className = "badge silver";
+              badge.textContent = "2nd";
+              teamTd.appendChild(badge);
+            } else if (idx === 2) {
+              const badge = document.createElement("span");
+              badge.className = "badge bronze";
+              badge.textContent = "3rd";
+              teamTd.appendChild(badge);
+            }
+
+            const scoreTd = document.createElement("td");
+            scoreTd.className = "score";
+            scoreTd.textContent = row.score ?? 0;
+
+            tr.appendChild(rankTd);
+            tr.appendChild(teamTd);
+            tr.appendChild(scoreTd);
+            tbody.appendChild(tr);
+          });
+        }
+
+        const now = new Date();
+        lastUpdate.textContent = "Last update: " +
+          now.toLocaleTimeString();
+
+        statusEl.textContent = "";
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Failed to load scores.";
+      }
+    }
+
+    // 立即加载一次，然后每 5 秒刷新
+    fetchScores();
+    setInterval(fetchScores, 5000);
+  </script>
 </body>
 </html>
