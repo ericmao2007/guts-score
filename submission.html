@@ -1,59 +1,188 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Guts Answer Submission</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #e5e7eb;
+    }
+    .card {
+      background: rgba(15,23,42,0.9);
+      border-radius: 18px;
+      padding: 24px 28px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.45);
+      border: 1px solid rgba(148,163,184,0.4);
+      backdrop-filter: blur(16px);
+    }
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 18px;
+    }
+    label {
+      font-size: 13px;
+      color: #cbd5f5;
+      display: block;
+      margin-bottom: 4px;
+    }
+    input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #4b5563;
+      background: rgba(15,23,42,0.8);
+      color: #e5e7eb;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.6);
+      background: rgba(15,23,42,1);
+    }
+    .field { margin-bottom: 14px; }
+    .row { display: flex; gap: 10px; }
+    .row .field { flex: 1; }
+    button {
+      width: 100%;
+      margin-top: 6px;
+      padding: 10px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      background: linear-gradient(135deg,#06b6d4,#3b82f6);
+      color: white;
+      box-shadow: 0 12px 28px rgba(59,130,246,0.4);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s;
+    }
+    button:hover {
+      filter: brightness(1.05);
+      box-shadow: 0 14px 32px rgba(59,130,246,0.55);
+    }
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 8px 18px rgba(59,130,246,0.35);
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 13px;
+      min-height: 18px;
+    }
+    .status.ok { color: #4ade80; }
+    .status.err { color: #f97373; }
+    .footer {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #6b7280;
+      text-align: right;
+    }
+  </style>
 </head>
 <body>
-  <h2>Submit Answers</h2>
+  <div class="card">
+    <div class="title">Guts Submission</div>
+    <div class="subtitle">输入队名、题号、答案和比赛密码后提交。</div>
 
-  <label>Team Name:</label><br>
-  <input id="team" type="text"><br><br>
+    <div class="field">
+      <label for="team">Team Name</label>
+      <input id="team" type="text" placeholder="e.g. PRISMS A">
+    </div>
 
-  <label>Question Number:</label><br>
-  <input id="question" type="text"><br><br>
+    <div class="row">
+      <div class="field">
+        <label for="question">Question #</label>
+        <input id="question" type="text" placeholder="e.g. 1">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="比赛密码">
+      </div>
+    </div>
 
-  <label>Your Answer:</label><br>
-  <input id="answer" type="text"><br><br>
+    <div class="field">
+      <label for="answer">Answer</label>
+      <input id="answer" type="text" placeholder="你的答案">
+    </div>
 
-  <button onclick="submitAnswer()">Submit</button>
+    <button onclick="submitAnswer()">Submit Answer</button>
 
-  <p id="result"></p>
+    <div id="status" class="status"></div>
+    <div class="footer">Page by ericmao2007 · Powered by Google Sheets</div>
+  </div>
 
-<script>
-function submitAnswer() {
-  const team = document.getElementById("team").value.trim();
-  const question = document.getElementById("question").value.trim();
-  const answer = document.getElementById("answer").value.trim();
+  <script>
+    // 换成你的 Web App URL（/exec 结尾的那个）
+    const BASE_URL = "https://script.google.com/macros/s/AKfycbwy_eNr0cqopWP-3ZnC08m3PSGf9J0phf96YiSfddmFlcYnKKSePBTB_gs5YSD7qXPZ/exec";
 
-  if (!team || !question || !answer) {
-    document.getElementById("result").innerText = "请把三个框都填上再点提交";
-    return;
-  }
+    async function submitAnswer() {
+      const team = document.getElementById("team").value.trim();
+      const question = document.getElementById("question").value.trim();
+      const answer = document.getElementById("answer").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const statusEl = document.getElementById("status");
 
-  document.getElementById("result").innerText = "正在提交中...";
+      if (!team || !question || !answer || !password) {
+        statusEl.textContent = "请把队名、题号、答案和密码都填上。";
+        statusEl.className = "status err";
+        return;
+      }
 
-  const data = { team, question, answer };
+      statusEl.textContent = "Submitting...";
+      statusEl.className = "status";
 
-  fetch("https://script.google.com/macros/s/AKfycbwy_eNr0cqopWP-3ZnC08m3PSGf9J0phf96YiSfddmFlcYnKKSePBTB_gs5YSD7qXPZ/exec", {
-    method: "POST",
-    // 注意：这里改成 text/plain，就不会触发 preflight 了
-    headers: {
-      "Content-Type": "text/plain;charset=utf-8"
-    },
-    body: JSON.stringify(data)
-  })
-  .then(res => res.text())
-  .then(txt => {
-    document.getElementById("result").innerText = "提交成功！";
-    document.getElementById("answer").value = "";
-  })
-  .catch(err => {
-    console.error(err);
-    document.getElementById("result").innerText = "提交失败（请截图发给我）";
-  });
-}
-</script>
+      const url = BASE_URL
+        + "?mode=submit"
+        + "&team=" + encodeURIComponent(team)
+        + "&question=" + encodeURIComponent(question)
+        + "&answer=" + encodeURIComponent(answer)
+        + "&password=" + encodeURIComponent(password);
 
+      try {
+        const res = await fetch(url);
+        const txt = await res.text();
+        console.log("Server:", txt);
+
+        if (txt.startsWith("OK")) {
+          statusEl.textContent = "提交成功！";
+          statusEl.className = "status ok";
+          document.getElementById("answer").value = "";
+        } else if (txt.indexOf("BAD_PASSWORD") !== -1) {
+          statusEl.textContent = "密码错误，请检查。";
+          statusEl.className = "status err";
+        } else if (txt.indexOf("MISSING_FIELDS") !== -1) {
+          statusEl.textContent = "缺少字段，请重试。";
+          statusEl.className = "status err";
+        } else {
+          statusEl.textContent = "服务器返回异常：" + txt;
+          statusEl.className = "status err";
+        }
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "提交失败（网络或服务器问题）。";
+        statusEl.className = "status err";
+      }
+    }
+  </script>
 </body>
 </html>
