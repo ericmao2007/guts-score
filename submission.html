@@ -35,7 +35,7 @@ function submitAnswer() {
 
   const data = { team, question, answer };
 
-  fetch("https://script.google.com/macros/s/AKfycbxsraNT30t-FKUrIX8eEQpSiBy20DUOhLE70lDSmYe7wLRSrEHc-dfx73nPAvSlH3le/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbwy_eNr0cqopWP-3ZnC08m3PSGf9J0phf96YiSfddmFlcYnKKSePBTB_gs5YSD7qXPZ/exec", {
     method: "POST",
     body: JSON.stringify(data),
     headers: { "Content-Type": "application/json" }
